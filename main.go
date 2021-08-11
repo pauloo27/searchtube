@@ -17,10 +17,8 @@ func getContent(data []byte, index int) []byte {
 }
 
 type SearchResult struct {
-	Title, Uploader, URL, Duration, ID string
-	Live                               bool
-	SourceName                         string
-	Extra                              []string
+	Title, Uploader, URL, Duration, ID, Thumbnail string
+	Live                                          bool
 }
 
 var httpClient = &http.Client{}
@@ -103,13 +101,13 @@ func Search(searchTerm string, limit int) (results []*SearchResult, err error) {
 		}
 
 		results = append(results, &SearchResult{
-			Title:      title,
-			Uploader:   uploader,
-			Duration:   duration,
-			ID:         id,
-			URL:        fmt.Sprintf("https://youtube.com/watch?v=%s", id),
-			Live:       live,
-			SourceName: "youtube",
+			Title:     title,
+			Uploader:  uploader,
+			Duration:  duration,
+			ID:        id,
+			URL:       fmt.Sprintf("https://youtube.com/watch?v=%s", id),
+			Live:      live,
+			Thumbnail: fmt.Sprintf("https://i1.ytimg.com/vi/%s/hqdefault.jpg", id),
 		})
 	})
 

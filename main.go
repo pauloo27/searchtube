@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/buger/jsonparser"
 )
@@ -17,8 +18,23 @@ func getContent(data []byte, index int) []byte {
 }
 
 type SearchResult struct {
-	Title, Uploader, URL, Duration, ID, Thumbnail string
-	Live                                          bool
+	Title, Uploader, URL, RawDuration, ID, Thumbnail string
+	Live                                             bool
+	duration                                         time.Duration
+}
+
+func (s *SearchResult) GetDuration() (duration time.Duration, err error) {
+	duration = s.duration
+	if duration == 0 {
+		str := s.RawDuration + "s"
+		if strings.Count(str, ":") == 2 {
+			str = strings.Replace(str, ":", "h", 1)
+		}
+		str = strings.Replace(str, ":", "m", 1)
+
+		duration, err = time.ParseDuration(str)
+	}
+	return
 }
 
 var httpClient = &http.Client{}
@@ -31,10 +47,12 @@ func Search(searchTerm string, limit int) (results []*SearchResult, err error) {
 		return nil, fmt.Errorf("Cannot create GET request: %v", err)
 	}
 	req.Header.Add("Accept-Language", "en")
+
 	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("Cannot get youtube page: %v", err)
 	}
+
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
 		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
@@ -44,8 +62,10 @@ func Search(searchTerm string, limit int) (results []*SearchResult, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("Cannot read body: %v", err)
 	}
+
 	body := string(buffer)
 	splittedScript := strings.Split(body, `window["ytInitialData"] = `)
+
 	if len(splittedScript) != 2 {
 		splittedScript = strings.Split(body, `var ytInitialData = `)
 	}
@@ -55,6 +75,7 @@ func Search(searchTerm string, limit int) (results []*SearchResult, err error) {
 			return nil, fmt.Errorf("Cannot split script: %v", err)
 		}
 	}
+
 	splittedScript = strings.Split(splittedScript[1], `window["ytInitialPlayerResponse"] = null;`)
 	jsonData := []byte(splittedScript[0])
 
@@ -101,13 +122,13 @@ func Search(searchTerm string, limit int) (results []*SearchResult, err error) {
 		}
 
 		results = append(results, &SearchResult{
-			Title:     title,
-			Uploader:  uploader,
-			Duration:  duration,
-			ID:        id,
-			URL:       fmt.Sprintf("https://youtube.com/watch?v=%s", id),
-			Live:      live,
-			Thumbnail: fmt.Sprintf("https://i1.ytimg.com/vi/%s/hqdefault.jpg", id),
+			Title:       title,
+			Uploader:    uploader,
+			RawDuration: duration,
+			ID:          id,
+			URL:         fmt.Sprintf("https://youtube.com/watch?v=%s", id),
+			Live:        live,
+			Thumbnail:   fmt.Sprintf("https://i1.ytimg.com/vi/%s/hqdefault.jpg", id),
 		})
 	})
 

@@ -1,6 +1,7 @@
 package searchtube
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -25,6 +26,10 @@ type SearchResult struct {
 
 func (s *SearchResult) GetDuration() (duration time.Duration, err error) {
 	duration = s.duration
+	if s.Live {
+		err = errors.New("cannot get duration of a live")
+		return
+	}
 	if duration == 0 {
 		str := s.RawDuration + "s"
 		if strings.Count(str, ":") == 2 {

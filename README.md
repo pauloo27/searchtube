@@ -2,6 +2,8 @@
 
 Search youtube, but not using the API.
 
+_youtube's way smarter than me, so don't expect this to bypass it's rate limit_
+
 ## How to Use
 
 

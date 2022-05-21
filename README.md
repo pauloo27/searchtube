@@ -2,6 +2,35 @@
 
 Search youtube, but not using the API.
 
+## How to Use
+
+
+Install it: `go get -u github.com/Pauloo27/searchtube`
+
+```go
+package main
+
+import (
+  "github.com/Pauloo27/searchtube"
+  "fmt"
+)
+
+func main() {
+  searchTerm := "Tutorial limpar casa"
+  maxResults := 5
+  results, err := searchtube.Search(searchTerm, maxResults)
+
+  if err != nil {
+    panic(err)
+  }
+
+  for i, result := range results {
+    rank := i+1
+    fmt.Printf(" #%d - %s by %s\n", rank, result.Title, result.Uploader)
+  }
+}
+```
+
 ## License
 
 This project is licensed under the [MIT license](./LICENSE).

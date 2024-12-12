@@ -1,4 +1,4 @@
-module github.com/Pauloo27/searchtube
+module github.com/pauloo27/searchtube
 
 go 1.16
 

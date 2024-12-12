@@ -7,18 +7,18 @@ _youtube's way smarter than me, so don't expect this to bypass it's rate limit_
 ## How to Use
 
 
-Install it: `go get -u github.com/Pauloo27/searchtube`
+Install it: `go get -u github.com/pauloo27/searchtube`
 
 ```go
 package main
 
 import (
-  "github.com/Pauloo27/searchtube"
+  "github.com/pauloo27/searchtube"
   "fmt"
 )
 
 func main() {
-  searchTerm := "Tutorial limpar casa"
+  searchTerm := "how to drink water"
   maxResults := 5
   results, err := searchtube.Search(searchTerm, maxResults)
 
